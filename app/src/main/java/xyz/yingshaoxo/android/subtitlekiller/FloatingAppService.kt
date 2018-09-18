@@ -90,7 +90,7 @@ class FloatingAppService : Service() {
                 PixelFormat.TRANSLUCENT
         )
 
-        // Check if we're running on Android 5.0 or higher
+        // Check if we're running on Android 7.0 or lower
         if (Build.VERSION.SDK_INT < 26) {
             // Call some material design APIs here
             params = WindowManager.LayoutParams(
@@ -127,7 +127,7 @@ class FloatingAppService : Service() {
         if (last_hight != "") {
             params.height =  last_hight.toInt()
         } else {
-            params.height = 100
+            params.height = 150
         }
         myView.button.setOnTouchListener { view, motionEvent ->
             when (motionEvent.action) {
@@ -147,8 +147,8 @@ class FloatingAppService : Service() {
                         } else if (starting_touch_x < motionEvent.rawX) {
                             params.height = (params.height + (motionEvent.rawX - starting_touch_x) * 0.1).toInt()
                         }
-                        if (params.height < 100) {
-                            params.height = 100
+                        if (params.height < 150) {
+                            params.height = 150
                         }
                         if (params.height > 800) {
                             params.height = 800

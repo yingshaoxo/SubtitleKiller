@@ -9,4 +9,8 @@
         -->
     </style>
 
+    <style name="Killer" parent="AppTheme" >
+        <item name="colorPrimary">@android:color/holo_red_dark</item>
+    </style>
+
 </resources>
