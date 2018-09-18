@@ -77,7 +77,10 @@ class FloatingAppService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        startNotification()
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            startNotification()
+        }
 
         var params = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -86,6 +89,19 @@ class FloatingAppService : Service() {
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         )
+
+        // Check if we're running on Android 5.0 or higher
+        if (Build.VERSION.SDK_INT < 26) {
+            // Call some material design APIs here
+            params = WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                    PixelFormat.TRANSLUCENT
+            )
+        }
+
         val last_y = read_txt("y.txt")
         if (last_y != "") {
             params.x = 0
@@ -111,7 +127,7 @@ class FloatingAppService : Service() {
         if (last_hight != "") {
             params.height =  last_hight.toInt()
         } else {
-            params.height = 200
+            params.height = 100
         }
         myView.button.setOnTouchListener { view, motionEvent ->
             when (motionEvent.action) {
@@ -131,8 +147,8 @@ class FloatingAppService : Service() {
                         } else if (starting_touch_x < motionEvent.rawX) {
                             params.height = (params.height + (motionEvent.rawX - starting_touch_x) * 0.1).toInt()
                         }
-                        if (params.height < 200) {
-                            params.height = 200
+                        if (params.height < 100) {
+                            params.height = 100
                         }
                         if (params.height > 800) {
                             params.height = 800
@@ -148,6 +164,7 @@ class FloatingAppService : Service() {
                 MotionEvent.ACTION_UP -> {
                     write_txt("height.txt", params.height.toString())
                     write_txt("y.txt", params.y.toString())
+                    params.width = 1920
                     /*
                     toast.cancel()
                     toast = Toast.makeText(this, "(${starting_touch_x.toInt()}, ${starting_touch_y.toInt()})",Toast.LENGTH_SHORT)
