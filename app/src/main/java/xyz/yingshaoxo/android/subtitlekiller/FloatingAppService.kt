@@ -121,6 +121,7 @@ class FloatingAppService : Service() {
         var initial_layout_y = 0
         var starting_touch_x: Float = 0.toFloat()
         var starting_touch_y: Float = 0.toFloat()
+        var distance = 0
         //var toast = Toast.makeText(this, "hi", Toast.LENGTH_SHORT)
 
         val last_hight = read_txt("height.txt")
@@ -141,17 +142,20 @@ class FloatingAppService : Service() {
                     val left_or_right = abs(starting_touch_x - motionEvent.rawX)
                     val up_or_down = abs(starting_touch_y - motionEvent.rawY)
                     if (left_or_right > up_or_down) {
-                        // resize box
-                        if (starting_touch_x > motionEvent.rawX) {
-                            params.height = (params.height - (starting_touch_x - motionEvent.rawX) * 0.1).toInt()
-                        } else if (starting_touch_x < motionEvent.rawX) {
-                            params.height = (params.height + (motionEvent.rawX - starting_touch_x) * 0.1).toInt()
-                        }
-                        if (params.height < 150) {
-                            params.height = 150
-                        }
-                        if (params.height > 800) {
-                            params.height = 800
+                        distance += 1
+                        if (distance > 25) {
+                            // resize box
+                            if (starting_touch_x > motionEvent.rawX) {
+                                params.height = (params.height - (starting_touch_x - motionEvent.rawX) * 0.1).toInt()
+                            } else if (starting_touch_x < motionEvent.rawX) {
+                                params.height = (params.height + (motionEvent.rawX - starting_touch_x) * 0.1).toInt()
+                            }
+                            if (params.height < 150) {
+                                params.height = 150
+                            }
+                            if (params.height > 800) {
+                                params.height = 800
+                            }
                         }
                     } else if (up_or_down > left_or_right) {
                         // move box
@@ -162,6 +166,7 @@ class FloatingAppService : Service() {
                     window_manager.updateViewLayout(myView, params)
                 }
                 MotionEvent.ACTION_UP -> {
+                    distance = 0
                     write_txt("height.txt", params.height.toString())
                     write_txt("y.txt", params.y.toString())
                     params.width = 1920
