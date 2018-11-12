@@ -21,6 +21,37 @@ import java.lang.Math.min
 
 
 class FloatingAppService : Service() {
+    fun getScreenWidth(): Int {
+        return Resources.getSystem().getDisplayMetrics().widthPixels
+    }
+
+    fun getScreenHeight(): Int {
+        return Resources.getSystem().getDisplayMetrics().heightPixels
+    }
+
+    fun get_max(): Int {
+        var the_max = 0
+        if (getScreenHeight() > getScreenWidth()) {
+            the_max = getScreenHeight()
+        } else {
+            the_max = getScreenWidth()
+        }
+        return the_max
+    }
+
+    fun get_min_height(): Int {
+        return (0.05 * get_max()).toInt()
+    }
+
+    fun get_max_height(): Int {
+        return (0.6 * get_max()).toInt()
+    }
+
+    val min_height = get_min_height()
+    val max_height = get_max_height()
+    val max_value = get_max()
+
+
     // Input and output
     fun write_txt(file_name: String, text: String) {
         val dest = File(this.filesDir.toString() + file_name)
@@ -34,22 +65,6 @@ class FloatingAppService : Service() {
         } else {
             return ""
         }
-    }
-
-    fun getScreenWidth(): Int {
-        return Resources.getSystem().getDisplayMetrics().widthPixels
-    }
-
-    fun getScreenHeight(): Int {
-        return Resources.getSystem().getDisplayMetrics().heightPixels
-    }
-
-    fun get_min_height(): Int {
-        return (0.1 * getScreenHeight()).toInt()
-    }
-
-    fun get_max_height(): Int {
-        return (0.6 * getScreenHeight()).toInt()
     }
 
     // About notifacation
@@ -144,7 +159,7 @@ class FloatingAppService : Service() {
         if (last_hight != "") {
             params.height =  last_hight.toInt()
         } else {
-            params.height = get_min_height()
+            params.height = min_height
         }
 
         myView.button.setOnTouchListener { view, motionEvent ->
@@ -163,9 +178,6 @@ class FloatingAppService : Service() {
                     if (left_or_right > up_or_down) {
                         distance += 1
                         if (distance > 25) {
-                            val min_height = get_min_height()
-                            val max_height = get_max_height()
-
                             // resize box
                             if (starting_touch_x > motionEvent.rawX) {
                                 params.height = (params.height - (starting_touch_x - motionEvent.rawX) * 0.1).toInt()
@@ -191,7 +203,7 @@ class FloatingAppService : Service() {
                     distance = 0
                     write_txt("height.txt", params.height.toString())
                     write_txt("y.txt", params.y.toString())
-                    params.width = getScreenWidth()
+                    params.width = max_value
                 }
             }
             true
