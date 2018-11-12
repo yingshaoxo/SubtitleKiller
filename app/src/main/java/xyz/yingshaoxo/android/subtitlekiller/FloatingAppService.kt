@@ -3,6 +3,7 @@ package xyz.yingshaoxo.android.subtitlekiller
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
@@ -15,8 +16,8 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.floating_window.view.*
 import java.io.File
 import java.lang.Math.abs
-
-
+import android.util.DisplayMetrics
+import java.lang.Math.min
 
 
 class FloatingAppService : Service() {
@@ -35,6 +36,21 @@ class FloatingAppService : Service() {
         }
     }
 
+    fun getScreenWidth(): Int {
+        return Resources.getSystem().getDisplayMetrics().widthPixels
+    }
+
+    fun getScreenHeight(): Int {
+        return Resources.getSystem().getDisplayMetrics().heightPixels
+    }
+
+    fun get_min_height(): Int {
+        return (0.1 * getScreenHeight()).toInt()
+    }
+
+    fun get_max_height(): Int {
+        return (0.6 * getScreenHeight()).toInt()
+    }
 
     // About notifacation
     private val notificationId = Random().nextInt()
@@ -128,9 +144,12 @@ class FloatingAppService : Service() {
         if (last_hight != "") {
             params.height =  last_hight.toInt()
         } else {
-            params.height = 150
+            params.height = get_min_height()
         }
+
         myView.button.setOnTouchListener { view, motionEvent ->
+            //Toast.makeText(this, "(${getScreenHeight().toInt()}, ${getScreenWidth().toInt()})",Toast.LENGTH_SHORT).show()
+
             when (motionEvent.action) {
                 MotionEvent.ACTION_DOWN -> {
                     initial_layout_x = params.x
@@ -144,17 +163,20 @@ class FloatingAppService : Service() {
                     if (left_or_right > up_or_down) {
                         distance += 1
                         if (distance > 25) {
+                            val min_height = get_min_height()
+                            val max_height = get_max_height()
+
                             // resize box
                             if (starting_touch_x > motionEvent.rawX) {
                                 params.height = (params.height - (starting_touch_x - motionEvent.rawX) * 0.1).toInt()
                             } else if (starting_touch_x < motionEvent.rawX) {
                                 params.height = (params.height + (motionEvent.rawX - starting_touch_x) * 0.1).toInt()
                             }
-                            if (params.height < 150) {
-                                params.height = 150
+                            if (params.height < min_height) {
+                                params.height = min_height
                             }
-                            if (params.height > 800) {
-                                params.height = 800
+                            if (params.height > max_height) {
+                                params.height = max_height
                             }
                         }
                     } else if (up_or_down > left_or_right) {
@@ -169,12 +191,7 @@ class FloatingAppService : Service() {
                     distance = 0
                     write_txt("height.txt", params.height.toString())
                     write_txt("y.txt", params.y.toString())
-                    params.width = 1920
-                    /*
-                    toast.cancel()
-                    toast = Toast.makeText(this, "(${starting_touch_x.toInt()}, ${starting_touch_y.toInt()})",Toast.LENGTH_SHORT)
-                    toast.show()
-                    */
+                    params.width = getScreenWidth()
                 }
             }
             true
