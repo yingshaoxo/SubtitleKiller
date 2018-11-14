@@ -18,6 +18,9 @@ import java.io.File
 import java.lang.Math.abs
 import android.util.DisplayMetrics
 import java.lang.Math.min
+import android.app.PendingIntent
+import android.app.Notification.EXTRA_NOTIFICATION_ID
+import xyz.yingshaoxo.android.subtitlekiller.R.attr.icon
 
 
 class FloatingAppService : Service() {
@@ -92,11 +95,23 @@ class FloatingAppService : Service() {
     private fun startNotification() {
         val activityIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, activityIntent, 0)
+
+        val kill_Intent = Intent(this, MyBroadcastReceiver::class.java).apply {
+            action = "kill_yourself"
+            putExtra(EXTRA_NOTIFICATION_ID, 0)
+        }
+        val kill_PendingIntent: PendingIntent =
+                PendingIntent.getBroadcast(this, 0, kill_Intent, 0)
+
         val notification = Notification.Builder(this, createNotificationChannel())
-                .setContentIntent(pendingIntent)
+                .setContentIntent(kill_PendingIntent)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 //.setContentTitle(FloatingAppService::class.simpleName)
-                //.setContentText("Service is running.")
+                .setContentText(getString(R.string.notification_string))
+                /*
+                .addAction(R.drawable.notification_icon_background, "STOP",
+                        kill_PendingIntent)
+                */
                 .build()
         startForeground(notificationId, notification)
     }

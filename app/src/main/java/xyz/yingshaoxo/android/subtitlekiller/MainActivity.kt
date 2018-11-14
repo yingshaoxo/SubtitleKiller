@@ -1,9 +1,12 @@
 package xyz.yingshaoxo.android.subtitlekiller
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.content.Intent
 import android.os.Handler
+import android.widget.Toast
 import com.linchaolong.android.floatingpermissioncompat.FloatingPermissionCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import xyz.yingshaoxo.android.subtitlekiller.GlobalVariable.service_intent
@@ -13,10 +16,12 @@ import xyz.yingshaoxo.android.subtitlekiller.GlobalVariable.started
 object GlobalVariable {
     lateinit var service_intent: Intent
     var started = false
+
+    var handler = Handler()
+    var kill_program_runable = Runnable {  }
 }
 
 class MainActivity : AppCompatActivity() {
-
     var allowed = false
     var could_do = false
     fun get_permission() {
@@ -65,6 +70,11 @@ class MainActivity : AppCompatActivity() {
             finish()
             true
         }
+
+        GlobalVariable.kill_program_runable = Runnable {
+            stop_service()
+            finish()
+        }
     }
 
     override fun onUserLeaveHint() {
@@ -82,5 +92,15 @@ class MainActivity : AppCompatActivity() {
 
         finish()
     }
+
 }
 
+
+class MyBroadcastReceiver : BroadcastReceiver() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == "kill_yourself") {
+            GlobalVariable.handler.post(GlobalVariable.kill_program_runable)
+        }
+    }
+}

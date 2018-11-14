@@ -10,7 +10,7 @@ android {
         applicationId "xyz.yingshaoxo.android.subtitlekiller"
         minSdkVersion 19
         targetSdkVersion 28
-        versionName '1.1'
+        versionName '1.2'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

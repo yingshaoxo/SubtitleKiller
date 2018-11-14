@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">SubtitleKiller</string>
     <string name="help">Start service by press home or return key.\n\nFinger up or down to adjust its position.\n\nFinger left or right to adjust its size.\n\nForce quit by long touch current view.</string>
+    <string name="notification_string">Tap to stop</string>
 </resources>

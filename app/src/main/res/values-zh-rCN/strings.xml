@@ -3,5 +3,6 @@
 
 	<string name="app_name">字幕杀手</string>
 	<string name="help">通过退出程序来启动字幕屏蔽条\n\n手指上下滑动屏蔽条来调整它的位置\n\n手指左右滑动屏蔽条来调整它的大小\n\n长按当前屏幕文字来强制退出程序</string>
+	<string name="notification_string">点击停止</string>
 
 </resources>
