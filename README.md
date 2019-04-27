@@ -1,4 +1,4 @@
-# SubtitleKiller
+# SubtitleKiller (安卓字幕杀手 | 安卓字幕屏蔽器 | 安卓字幕遮挡器)
 
 > The best way to learn English is to let it be your native language
 
