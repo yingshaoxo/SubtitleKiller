@@ -223,6 +223,17 @@ class FloatingAppService : Service() {
             }
             true
         }
+        myView.button.setOnKeyListener { action, key_code ->  //Codes for Android TV Remote.
+            if (action == 0) {
+                when (key_code) {
+                    19 -> params.y = initial_layout_y - 1  //Up
+                    20 -> params.y = initial_layout_y + 1  //Down
+                    21 -> params.x = initial_layout_x - 1  //Left
+                    22 -> params.x = initial_layout_x + 1  //Right
+                }
+                window_manager.updateViewLayout(myView, params)
+            }
+        }
 
         // Add layout to window manager
         window_manager!!.addView(myView, params)
