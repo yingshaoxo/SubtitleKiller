@@ -223,7 +223,11 @@ class FloatingAppService : Service() {
             }
             true
         }
-        myView.button.setOnKeyListener { view, action, key_code ->  //Codes for Android TV Remote.
+
+        //Codes for Android TV Remote.
+
+        myViewview.setFocusable(true);
+        myView.button.setOnKeyListener { view, action, key_code ->
             if (action == 0) {
                 when (key_code) {
                     19 -> params.y = initial_layout_y - 1  //Up
