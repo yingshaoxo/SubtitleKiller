@@ -228,8 +228,14 @@ class FloatingAppService : Service() {
                 when (key_code) {
                     19 -> params.y = initial_layout_y - 1  //Up
                     20 -> params.y = initial_layout_y + 1  //Down
-                    21 -> params.x = initial_layout_x - 1  //Left
-                    22 -> params.x = initial_layout_x + 1  //Right
+                    21 -> params.height -= 1  //Left
+                    22 -> params.height += 1  //Right
+                }
+                if (params.height < min_height) {
+                    params.height = min_height
+                }
+                if (params.height > max_height) {
+                    params.height = min_height
                 }
                 window_manager.updateViewLayout(myView, params)
             }
