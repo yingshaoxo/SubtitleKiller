@@ -16,6 +16,8 @@
         android:gravity="center_vertical|center_horizontal|center"
         android:text="yingshaoxo"
         android:textAllCaps="false"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
