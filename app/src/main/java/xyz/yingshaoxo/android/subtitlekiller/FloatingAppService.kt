@@ -20,10 +20,23 @@ import android.util.DisplayMetrics
 import java.lang.Math.min
 import android.app.PendingIntent
 import android.app.Notification.EXTRA_NOTIFICATION_ID
+import android.renderscript.Int2
 import xyz.yingshaoxo.android.subtitlekiller.R.attr.icon
+import kotlin.properties.Delegates
 
 
 class FloatingAppService : Service() {
+    // About windows
+    companion object {
+        lateinit var params: WindowManager.LayoutParams
+        lateinit var myView: View
+        lateinit var window_manager: WindowManager
+        var initial_layout_x = 0
+        var initial_layout_y = 0
+        var min_height = 0
+        var max_height = 0
+
+    }
     fun getScreenWidth(): Int {
         return Resources.getSystem().getDisplayMetrics().widthPixels
     }
@@ -50,8 +63,8 @@ class FloatingAppService : Service() {
         return (0.6 * get_max()).toInt()
     }
 
-    val min_height = get_min_height()
-    val max_height = get_max_height()
+    Companion.min_height = get_min_height()
+    Companion.max_height = get_max_height()
     val max_value = get_max()
 
 
@@ -116,11 +129,6 @@ class FloatingAppService : Service() {
         startForeground(notificationId, notification)
     }
 
-
-    // About windows
-    lateinit var myView: View
-    lateinit var window_manager: WindowManager
-
     override fun onCreate() {
         super.onCreate()
 
@@ -128,7 +136,7 @@ class FloatingAppService : Service() {
             startNotification()
         }
 
-        var params = WindowManager.LayoutParams(
+        Companion.params = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
@@ -139,7 +147,7 @@ class FloatingAppService : Service() {
         // Check if we're running on Android 7.0 or lower
         if (Build.VERSION.SDK_INT < 26) {
             // Call some material design APIs here
-            params = WindowManager.LayoutParams(
+            Companion.params = WindowManager.LayoutParams(
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
@@ -150,21 +158,21 @@ class FloatingAppService : Service() {
 
         val last_y = read_txt("y.txt")
         if (last_y != "") {
-            params.x = 0
-            params.y = last_y.toInt()
-            params.gravity = Gravity.BOTTOM or Gravity.CENTER
+            Companion.params.x = 0
+            Companion.params.y = last_y.toInt()
+            Companion.params.gravity = Gravity.BOTTOM or Gravity.CENTER
         } else {
-            params.gravity = Gravity.BOTTOM or Gravity.CENTER
-            params.x = 0
-            params.y = 100
+            Companion.params.gravity = Gravity.BOTTOM or Gravity.CENTER
+            Companion.params.x = 0
+            Companion.params.y = 100
         }
 
-        window_manager= getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        Companion.window_manager= getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        myView = inflater!!.inflate(R.layout.floating_window, null, true)
+        Companion.myView = inflater!!.inflate(R.layout.floating_window, null, true)
 
-        var initial_layout_x = 0
-        var initial_layout_y = 0
+        Companion.initial_layout_x = 0
+        Companion.initial_layout_y = 0
         var starting_touch_x: Float = 0.toFloat()
         var starting_touch_y: Float = 0.toFloat()
         var distance = 0
@@ -172,18 +180,18 @@ class FloatingAppService : Service() {
 
         val last_hight = read_txt("height.txt")
         if (last_hight != "") {
-            params.height =  last_hight.toInt()
+            Companion.params.height =  last_hight.toInt()
         } else {
-            params.height = min_height
+            Companion.params.height = Companion.min_height
         }
 
-        myView.button.setOnTouchListener { view, motionEvent ->
+        Companion.myView.button.setOnTouchListener { view, motionEvent ->
             //Toast.makeText(this, "(${getScreenHeight().toInt()}, ${getScreenWidth().toInt()})",Toast.LENGTH_SHORT).show()
 
             when (motionEvent.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    initial_layout_x = params.x
-                    initial_layout_y = params.y
+                    Companion.initial_layout_x = Companion.params.x
+                    Companion.initial_layout_y = Companion.params.y
                     starting_touch_x = motionEvent.rawX
                     starting_touch_y = motionEvent.rawY
                 }
@@ -195,42 +203,62 @@ class FloatingAppService : Service() {
                         if (distance > 25) {
                             // resize box
                             if (starting_touch_x > motionEvent.rawX) {
-                                params.height = (params.height - (starting_touch_x - motionEvent.rawX) * 0.1).toInt()
+                                Companion.params.height = (Companion.params.height - (starting_touch_x - motionEvent.rawX) * 0.1).toInt()
                             } else if (starting_touch_x < motionEvent.rawX) {
-                                params.height = (params.height + (motionEvent.rawX - starting_touch_x) * 0.1).toInt()
+                                Companion.params.height = (Companion.params.height + (motionEvent.rawX - starting_touch_x) * 0.1).toInt()
                             }
-                            if (params.height < min_height) {
-                                params.height = min_height
+                            if (Companion.params.height < Companion.min_height) {
+                                Companion.params.height = Companion.min_height
                             }
-                            if (params.height > max_height) {
-                                params.height = max_height
+                            if (Companion.params.height > Companion.max_height) {
+                                Companion.params.height = Companion.max_height
                             }
                         }
                     } else if (up_or_down > left_or_right) {
                         // move box
                         //params.x = initial_layout_x + (motionEvent.getRawX() - starting_touch_y).toInt();
-                        params.y = initial_layout_y - (motionEvent.rawY - starting_touch_y).toInt()
+                        Companion.params.y = Companion.initial_layout_y - (motionEvent.rawY - starting_touch_y).toInt()
                     }
 
-                    window_manager.updateViewLayout(myView, params)
+                    Companion.window_manager.updateViewLayout(Companion.myView, Companion.params)
                 }
                 MotionEvent.ACTION_UP -> {
                     distance = 0
-                    write_txt("height.txt", params.height.toString())
-                    write_txt("y.txt", params.y.toString())
-                    params.width = max_value
+                    write_txt("height.txt", Companion.params.height.toString())
+                    write_txt("y.txt", Companion.params.y.toString())
+                    Companion.params.width = max_value
                 }
             }
             true
         }
 
+        //Codes for Android TV Remote.
+        Companion.myView.button.setOnKeyListener { _, code, event ->
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                when (code) {
+                    KeyEvent.KEYCODE_DPAD_UP -> Companion.params.y = Companion.initial_layout_y - 1  //Up
+                    KeyEvent.KEYCODE_DPAD_DOWN -> Companion.params.y = Companion.initial_layout_y + 1 //Down
+                    KeyEvent.KEYCODE_DPAD_LEFT -> Companion.params.height -= 1  //Left
+                    KeyEvent.KEYCODE_DPAD_RIGHT -> Companion.params.height += 1  //Right
+                }
+                if (Companion.params.height < Companion.min_height) {
+                    Companion.params.height = Companion.min_height
+                }
+                if (Companion.params.height > Companion.max_height) {
+                    Companion.params.height = Companion.max_height
+                }
+                Companion.window_manager.updateViewLayout(Companion.myView, Companion.params)
+            }
+            true
+        }
+
         // Add layout to window manager
-        window_manager!!.addView(myView, params)
+        Companion.window_manager.addView(Companion.myView, Companion.params)
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        window_manager.removeViewImmediate(myView)
+        Companion.window_manager.removeViewImmediate(Companion.myView)
     }
 }
